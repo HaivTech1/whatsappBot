@@ -1,0 +1,243 @@
+<% layout('layout') -%> 
+<div class="main-panel">
+    <div class="container">
+        <div class="panel-header bg-primary-gradient">
+            <div class="page-inner py-5">
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                    <div>
+                        <h2 class="text-white pb-2 fw-bold"></h2>
+                        <h5 class="text-white op-7 mb-2"></h5>
+                    </div>
+                    <div class="ml-md-auto py-2 py-md-0">
+                        <button class="btn btn-secondary btn-round" id="btnAdd"><i class="fa fa-plus-circle"></i></button>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+        <div class="page-inner mt--5">
+            <div class="row mt--2">
+                <div class="col-md-12">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="card-title">List Schedule</div>
+                            <div class="d-flex flex-wrap justify-content-around pb-2 pt-4">
+                                <div class="table-responsive">
+                                    <table class="table" id="example">
+                                        <thead>
+                                          <tr>
+                                            <!-- <th scope="col">Id</th> -->
+                                            <th scope="col">Sender</th>
+                                            <th scope="col">Date Schedule</th>
+                                            <th scope="col">Message Schedule</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Options</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                      </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             
+            </div>
+        </div>
+    </div>
+    <% include partials/min-footer %> 
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center" id="exampleModalLabel">Form Add Schedule</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="myForm">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Sender</label>
+                    <select class="form-control" id="sender" name="sender" > 
+                    </select>
+                </div>
+                <div class="form-group">
+                <label for="exampleInputEmail1">Date </label>
+                    <input type="date" id="picker" class="form-control dtp_main" name="date">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputEmail1"> Time</label>
+                        <input type="time" id="picker" class="form-control dtp_main" name="time">
+                    </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Message</label>
+                  <textarea class="form-control" id="client-description" name="message"></textarea>
+                </div>
+              </form>
+        </div>
+        <div class="modal-footer">
+          <button id="btnSave" class="btn btn-primary add-client-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+
+
+    $(document).ready(function() {
+        $('#example').DataTable({
+            processing: true,
+            ajax: {
+                'url':'/schedule/listSchedule',
+                'type': 'GET'
+            },
+            columns: [
+                // {data: 'id', name: 'id'},
+                {data: 'sender', name: 'sender'},
+                {data: 'date', name: 'date'},
+                {data: 'message', name: 'message'},
+                {data: 'status', name: 'status'},
+                {   
+                    data: 'id',
+                    render: function ( data, type, row ) {
+                        return '<div class="btn-group" role="group" aria-label="Basic example">'+
+                        '<button onClick="Edit(this)" data-id="'+data+'" id="Edit" class="btn btn-warning">Edit</button>&nbsp;'+
+                        '<button  onClick="Delete(this)" data-id="'+data+'" id="Edit" class="btn btn-danger btn-sm"><i class="nav-icon fa fa-trash"></i> Delete</button>&nbsp;'+
+                        '</div>';
+                    },
+                    searchable:false,
+                    orderable:false
+                }
+            ]
+        });
+        
+    });
+    
+    function reloadTable() {
+        $("#example").DataTable().ajax.reload(null,false);
+    }
+    $('#btnAdd').click(function () {
+        // $('#myForm')[0].reset();
+        $('#myModal').modal('show');
+        $('#myForm').attr('action','/schedule/create');
+        $('#myModal').find('.modal-title').text('Add Data Schedule');
+        $('#btnSave').html('<i class="fa fa-save"></i>&nbsp;Add');
+    });
+
+    $('#btnSave').click(function () {
+        var url = $('#myForm').attr('action');
+        var data = $("#myForm").serialize();
+        $('#btnSave').html('<i class="fa fa-save"></i>&nbsp; Add <img width="30" heigth="30" src="">').attr('disabled', 'disabled');
+        $.ajax({
+            type: "POST", 
+            url: url,
+            data: data, 
+            dataType: 'json', 
+            async: false,
+            success : function(response){
+                setTimeout(function(){
+                    $('#btnSave').prop('disabled', false);
+                    $('#myModal').modal('hide');
+                    reloadTable();
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Your work has been saved',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                },1000);
+               
+            },
+            error: function(error){
+                console.log(error)
+            }
+        });
+    });
+
+    function Edit(id){
+        var id = $(id).data("id");
+        $('#btnSave').html('Update');
+        $('#myModal').modal('show');
+        $('#myForm').attr('action','/schedule/update');
+        $('#myModal').find('.modal-title').text('Update Data');
+        $.ajax({
+            type : 'GET',
+            async: false,
+            url  : '/schedule/edit/'+id,
+            dataType :'json',
+            success:function(response){
+                const {data} = response
+                // console.log(data);
+                $('input[name=id]').val(data.id);
+                $('input[name=date]').val(data.date);
+                $('input[name=message]').val(data.message);
+            }
+        });
+    }
+
+    function Delete(id) {
+        var id = $(id).data("id");
+        $('.btnDelete').html('&#10095;&#10095; Delete Data <img width="30" heigth="30" src="">').attr('disabled', 'disabled');
+        Swal.fire({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this imaginary file!",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                $.ajax({
+                    type : 'DELETE',
+                    url  :'/schedule/delete/'+id,
+                    async: false,
+                    dataType :'json',
+                    success : function(response){
+                        reloadTable();
+                        Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Your work has been saved',
+                        showConfirmButton: false,
+                        timer: 1500
+                        })
+
+                    }
+                });
+            } else {
+                Swal.fire("Your imaginary file is safe!");
+            }
+        });
+    }
+
+    $.ajax({
+		type: 'GET',
+		url: '/sendwa/listSender',
+		dataType: 'json',
+		success: function (d) {
+			var newOptions = {};
+			newOptions['-- Select --'] = '';
+			for (var index = 0; index < d.data.length; index++) {
+				var option = d.data[index].description;
+				var value = d.data[index].id;
+				newOptions[option] = value;
+			}
+			var $el = $("#sender");
+			// $el.empty(); // remove old options
+			$.each(newOptions, function(key,value) {
+			$el.append($("<option></option>")
+				.attr("value", value).text(key));
+			});
+			// console.log(JSON.stringify(newOptions));
+		},error:function(){ 
+			// console.log(d);
+		}
+	});
+</script>

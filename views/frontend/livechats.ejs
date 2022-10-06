@@ -1,0 +1,292 @@
+<% layout('layout') -%> 
+<style>
+</style>
+<div class="main-panel">
+    <div class="container container-full">
+        <div class="page-navs bg-white">
+            <div class="nav-scroller">
+                <div class="nav nav-tabs nav-line nav-color-secondary">
+                    <a class="nav-link active show" data-toggle="tab" href="#tab1">Inbox Message</a>
+                </div>
+            </div>
+        </div>
+        <div class="page-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between">
+                        <div class="d-md-inline-block">
+                            <form id="myForm">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-white">
+                                            <i class="fa fa-search search-icon"></i>
+                                        </span>
+                                    </div>
+                                    <select class="form-control" id="list-kontak" name="hp"></select>
+                                    &nbsp;
+                                    <select class="form-control" id="list-sender" name="devices"></select>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" id="btnSave" type="button">Filter</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div id="list-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% include partials/min-footer %> 
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Form Reply Message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form id="myForm2">
+            <div class="form-group">
+                <input type="hidden" class="form-control" name="id">
+                <textarea type="text" class="form-control" name="message"></textarea>
+              </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" id="btnSave2" onclick="sendReplayMessage()" class="btn btn-primary">Send Replay Message</button>
+    </div>
+    </div>
+</div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script type="text/javascript">
+   $.ajax({
+		type: 'GET',
+		url: '/sendwa/listSender',
+		dataType: 'json',
+		success: function (d) {
+			var newOptions = {};
+			newOptions[' Select Devices '] = '';
+			for (var index = 0; index < d.data.length; index++) {
+				var option = d.data[index].description;
+				var value = d.data[index].id;
+				newOptions[option] = value;
+			}
+			var $el = $("#list-sender");
+			// $el.empty(); // remove old options
+			$.each(newOptions, function(key,value) {
+			$el.append($("<option></option>")
+				.attr("value", value).text(key));
+			});
+			// console.log(JSON.stringify(newOptions));
+		},error:function(){ 
+			// console.log(d);
+		}
+	});
+  
+
+    $.ajax({
+		type: 'GET',
+		url: '/kontak/listKontak',
+		dataType: 'json',
+		success: function (response) {
+            console.log(response);
+            var out = '<option value="">Select Number Phone</option>';
+            $.each(response.data, function( key, value ) {
+                out += '<option value="'+value.hp+'">'+ value.name +' - ('+ value.hp +')</option>';
+            });
+            out += '';
+            //append out to your div
+            $("#list-kontak").html(out);
+            
+			// console.log(JSON.stringify(newOptions));
+		},error:function(){ 
+			// console.log(d);
+		}
+	});
+
+    $('#btnSave').click(function () {
+        var url = $('#myForm').attr('action');
+        var formData = new FormData();
+        var formData = {
+            hp:  $('select[name=hp]').val(),
+            devices:$('select[name=devices]').val(),
+        }
+
+        let hp = document.forms["myForm"]["hp"].value;
+        if (hp == "") {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'warning',
+                title: 'Phone Number Is Required',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return false;
+        }
+        let devices = document.forms["myForm"]["devices"].value;
+        if (devices == "") {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'warning',
+                title: 'Devices Is Required',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return false;
+            
+        }
+
+        $('#btnSave').html('<i class="fa fa-save"></i>&nbsp; Filter <img width="30" heigth="30" src="">').attr('disabled', 'disabled');
+        
+        $.ajax({
+            type : "PUT",
+            contentType : "application/json",
+            url : '/api-v1/filter-chat-from/'+formData.hp+'/'+formData.devices+'',
+            data : JSON.stringify(formData),
+            dataType : 'json',
+            beforeSend: function(){
+                $("#loading").show();
+            },
+            complete: function(){
+                $("#loading").hide();
+            },
+            success : function(data){
+                $('#btnSave').prop('disabled', false);
+
+                const result = data['result'].reverse();
+
+                console.log(result);
+
+                var html = '';
+                var i;
+                for(i=0; i<result.length; i++){
+                    console.log(result[0].id._serialized)
+
+                    if(result[i].profile==undefined){
+                        var photo ="https://www.pngall.com/wp-content/uploads/12/Avatar-Profile.png";
+                    }else{
+                        var photo =result[i].profile;
+                    }
+                    html += '<section class="card mt-4">'+
+                                '<div class="list-group list-group-messages list-group-flush">'+
+                                    '<div class="list-group-item unread">'+
+                                        '<div class="list-group-item-figure">'+
+                                            '<span class="rating rating-sm mr-3">'+
+                                                '<input type="checkbox" id="star1" value="1">'+
+                                                '<label for="star1">'+
+                                                    '<span class="fa fa-star"></span>'+
+                                                '</label>'+
+                                            '</span>'+
+                                            '<a href="#" class="user-avatar">'+
+                                                '<div class="avatar avatar-online">'+
+                                                    '<img src="'+photo+'" alt="..." class="avatar-img rounded-circle">'+
+                                                '</div>'+
+                                            '</a>'+
+                                        '</div>'+
+                                        '<div class="list-group-item-body pl-3 pl-md-4">'+
+                                            '<div class="row">'+
+                                                '<div class="col-12 col-lg-10">'+
+                                                    '<h4 class="list-group-item-title">'+
+                                                        '<a href="#">'+result[i]['contact']['pushname']+ '</a><br>'+
+                                                        '<small>'+result[i]['contact']['number']+'</small>'+
+                                                    '</h4>'+
+                                                    '<p class="">'+result[i].body+'</p><br>'+
+                                                    '<button onclick="replyMessage(this)" data-id='+result[i].id._serialized+' class="btn btn-outline-primary btn-rounded">Reply</button>'+
+                                                '</div>'+
+                                                '<div class="col-12 col-lg-2 text-lg-right">'+
+                                                    '<p class="list-group-item-text"> 16 minutes ago </p>'+
+                                                '</div>'+
+                                            '</div>'+
+                                        '</div>'+
+                                        
+                                    '</div>'+
+                                '</div>'+
+                            '</section>';
+                }
+                $('#list-message').html(html);
+            },
+            error: function(){
+                $('#btnSave').prop('disabled', false);
+            }
+        });
+    });
+
+    $("#loading").ajaxStart(function(){
+        $(this).show();
+    });
+
+    $("#loading").ajaxComplete(function(){
+        $(this).hide();
+    });
+
+  
+    function replyMessage(id){
+        $('#btnSave2').html('Send Replay Message');
+        $('#myModal').modal('show');
+        $('#myForm2').attr('action',"");
+        $('#myModal').find('.modal-title').text('Reply Message');
+        $('#myForm2').attr('action',"/api-v1/replyById");
+        $('input[name=id]').val($(id).data("id"));
+
+        $('#myForm2')[0].reset();
+    }
+
+    function sendReplayMessage() {
+        $('#btnSave2').html('<i class="fa fa-save"></i>&nbsp; Add <img width="30" heigth="30" src="https://sumbawabarat.ntb.polri.go.id/images/icon/loading.gif">').attr('disabled', 'disabled');
+        let devices = document.forms["myForm2"]["message"].value;
+        if (devices == "") {
+            alert("Message Is Required");
+            return false;
+        }
+        var url = $('#myForm2').attr('action');
+        var formData = {
+            number:  $('select[name=hp]').val(),
+            clientId:$('select[name=devices]').val(),
+            messageId:$('input[name=id]').val(),
+            message:$('textarea[name=message]').val(),
+        }
+        $.ajax({
+            url:url,
+            type : 'ajax',
+            method :'POST',
+            data:formData,
+            async: false,
+            dataType :'json',
+            success : function(response){
+                $('#btnSave2').prop('disabled', false);
+                $('#myModal').modal('hide');
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Success Reply Message',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            },
+            error: function(jqXHR, ajaxOptions, errorThrown) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'Quota Message Sudah Habis',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                $('#btnSave2').prop('disabled', false);
+                $('#myModal').modal('hide');
+            }
+        });
+    }
+  
+
+</script>

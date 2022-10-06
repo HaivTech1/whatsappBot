@@ -1,0 +1,304 @@
+<% layout('layout') -%> 
+<style>
+.client {
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-sizing: border-box;
+    display: inline-block;
+    margin: 10px;
+    border-radius: 20px;
+}
+.hide {
+    display: none;
+}
+</style>
+<div class="main-panel">
+    <div class="container">
+        <div class="panel-header bg-primary-gradient">
+            <div class="page-inner py-5">
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                    <div>
+                        <h2 class="text-white pb-2 fw-bold"></h2>
+                        <h5 class="text-white op-7 mb-2"></h5>
+                    </div>
+                    <div class="ml-md-auto py-2 py-md-0">
+                        <button class="btn btn-secondary btn-round" id="btnAdd"> <i class="fa fa-plus-circle"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-inner mt--5">
+            <div class="row mt--2">
+                <div class="col-md-12">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="card-title "><small>1. Add Account WhatsApp</small> </div>
+                            <div class="card-title "><small>2. And Scan QR Code</small></div>
+                            <div class="d-flex flex-wrap justify-content-center pb-2 pt-2">
+                                <div class="client-container">
+                                    <div class="client hide">
+                                        <h3 class="text-center" id="description"></h3>
+                                        <p class="description text-center" id="number"></p>
+                                        <img src="./images/wa.png" width="200px"  height="200px" alt="Connecting..." id="qrcode">
+                                        <div style="overflow-x: scroll;height:150px;">
+                                            <h3><h3 class="title text-center" id="delete"></h3></h3>
+                                            <ul class="logs"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% include partials/min-footer %> 
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center" id="exampleModalLabel">Form Add Account WhatsApp</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+                <form id="myForm">
+                    <div class="form-group" style="display: none;">
+                        <label for="exampleInputEmail1">Sender</label>
+                        <input type="hidden" id="userid" value="<%= email %>">
+                        <input type="text" id="client-id" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                    <label for="exampleInputPassword1">Number Phone</label>
+                    <input type="number" class="form-control" name="hp" id="client-description" placeholder="082165561178">
+                    </div>
+                </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary add-client-btn">Create Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+     $(function() {
+        var txt = $("input#client-id");
+        var func = function() {
+            txt.val(txt.val().replace(/\s/g, ''));
+            txt.val(txt.val().replace(/[^a-zA-Z0-9@]+/, 'a'));
+        }
+         txt.keyup(func).blur(func);
+    });
+
+
+
+    function makeid(length) {
+        var result           = '';
+        var characters       = 'abcdefghijklmnopqrstuvwxyz';
+        var charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * 
+            charactersLength));
+        }
+        return result;
+    }
+
+    $('#btnAdd').click(function () {
+        $('#myModal').modal('show');
+        $('#client-id').val(makeid(8));
+        $('#client-description').val('');
+    });
+
+
+   $(document).ready(function() {
+       var socket = io();
+        
+       $('.add-client-btn').click(function() {
+            let hp = document.forms["myForm"]["hp"].value;
+            if (hp == "") {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'Number Phone Is Required',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                return false;
+            }
+            var clientId = $('#client-id').val();
+            var userid = $('#userid').val();
+            var clientDescription = $('#client-description').val();
+            var template = $('.client').first().clone()
+                                        .removeClass('hide')
+                                        .addClass(clientId);
+            // template.find('.title').html(clientId);
+            template.find('.title').html(clientId+`<br> <button class="btn btn-danger btn-sm" data-id="${clientId}" data-hp="${clientDescription}" onclick="Delete(this)"> <i class="nav-icon fa fa-sign-out icon"></i> `+clientId+`</button>`);
+            // template.find('.description.'+clientId+'').html(clientDescription);
+            $('.client-container').append(template);
+
+            socket.emit('create-session', {
+                id: clientId,
+                userid:userid,
+                description: clientDescription
+            });
+
+            $('#myModal').modal('hide');
+            $('#client-id').val('');
+            $('#client-description').val('');
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Connection created!',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+
+        socket.on('init', function(data) {
+            $('.client-container .client').not(':first').remove();
+            var luckyFilter = data.filter(function(item) {
+                return item.userid=='<%=email%>';
+            });
+            for (var i = 0; i < luckyFilter.length; i++) {
+                var session = data[i];
+                var clientId = session.id;
+                var clientDescription = session.description;
+                var template = $('.client').first().clone().removeClass('hide').addClass(clientId);
+                template.find('.title').html(`<button class="btn btn-danger btn-sm" data-id="${clientId}" data-hp="${clientDescription}" onclick="Delete(this)"><i class="nav-icon fa fa-sign-out icon"></i> LogOut </button><br><br><input type="text" value="${clientId}" id="myInput" readonly style="width:100px;display:none;">
+                    <button onclick="myFunction()" class="btn btn-danger btn-sm">Copy ID</button>`);
+                // template.find('.description').html(clientDescription);
+                // getImage(session.id,session.description);
+                $('.client-container').append(template);
+                $(".logs").html("");
+                if (session.ready) {
+                    $(".logs").html("");
+                    $(`.client.${session.id} .logs`).append($('<li>').text('Whatsapp is ready!'));
+                    $(`.client.${session.id} #qrcode`).attr('src', '/images/cek.png');
+                    // getImage(session.id,session.description);
+                } else {
+                    $(".logs").html("");
+                    $(`.client.${session.id} .logs`).append($('<li>').text('Connecting...'));
+                }
+               
+            }
+        });
+
+        socket.on('remove-session', function(id) {
+            $(`.client.${id}`).remove();
+        });
+
+        socket.on('message', function(data) {
+            $(`.client.${data.id} .logs`).append($('<li>').text(data.text));
+        });
+
+        socket.on('qr', function(data) {
+            console.log(data)
+            $(`.client.${data.id} #qrcode`).attr('src', data.src);
+            $(`.client.${data.id} #qrcode`).show();
+        });
+
+        socket.on('ready', function(data) {
+            console.log(data)
+            // getImage(data.id,data.description);
+            $(`.client.${data.id} #qrcode`).attr('src', '/images/cek.png');
+        });
+
+        socket.on('authenticated', function(data) {
+            console.log(data)
+            // getImage(data.id,data.description);
+            $(`.client.${data.id} #qrcode`).attr('src', '/images/cek.png');
+        });
+    });
+    
+    function getImage(id,description) {
+        $.ajax({
+            type : 'get',
+            async: false,
+            url  : '/api-v1/get-image/'+description+'/'+id,
+            dataType :'json',
+            beforeSend: function(){
+                $("#loading").show();
+            },
+            complete: function(){
+                $("#loading").hide();
+            },
+            success:function(response){
+                console.log('IMAM OK '+response.image)
+                if(response.image==undefined){
+                    $(`.client.${id} #qrcode`).attr('src','https://www.pngall.com/wp-content/uploads/12/Avatar-Profile.png');
+                    $(`.client.${id} #description`).html("Uknown Name");
+                    $(`.client.${id} #number`).html(response['profile']['number']);
+                }else{
+                    $(`.client.${id} #qrcode`).attr('src',response.image);
+                    $(`.client.${id} #description`).html(response['profile']['pushname']);
+                    $(`.client.${id} #number`).html(response['profile']['number']);
+                }
+                
+            }
+        });
+    }
+
+    function Delete(id){
+        var hp = $(id).data("hp");
+        var id = $(id).data("id");
+        $('#delete').html('&#10095;&#10095; Delete Data <img width="30" heigth="30" src="">').attr('disabled', 'disabled');
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Once deleted, you will not be able to recover this imaginary file!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                var socket = io();
+                socket.emit('delete-session',{
+                    id: id,
+                    hp: hp,
+                });
+                $(`.${id}`).remove();
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Your work has been saved',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                setTimeout(function(){
+                    // location.reload();
+                },3000);
+            } else {
+                Swal.fire("Your imaginary file is safe!");
+            }
+        });
+    }
+</script>
+<script>
+    function myFunction() {
+      /* Get the text field */
+      var copyText = document.getElementById("myInput");
+    
+      /* Select the text field */
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
+    
+      /* Copy the text inside the text field */
+      navigator.clipboard.writeText(copyText.value);
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Copied! '+copyText.value+'',
+        showConfirmButton: false,
+        timer: 1800
+    })
+    }
+</script>

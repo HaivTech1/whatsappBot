@@ -1,0 +1,202 @@
+<% layout('layout') -%> 
+<div class="main-panel">
+    <div class="container">
+        <div class="panel-header bg-primary-gradient">
+            <div class="page-inner py-5">
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                    <div>
+                        <h2 class="text-white pb-2 fw-bold"></h2>
+                        <h5 class="text-white op-7 mb-2"></h5>
+                    </div>
+                    <div class="ml-md-auto py-2 py-md-0">
+                        <button class="btn btn-secondary btn-round" id="btnAdd"><i class="fa fa-plus-circle"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-inner mt--5">
+            <div class="row mt--2">
+                <div class="col-md-12">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="card-title">List Contact</div>
+                            <div class="d-flex flex-wrap justify-content-around pb-2 pt-4">
+                                <table class="table" id="example">
+                                    <thead>
+                                      <tr>
+                                        <!-- <th scope="col">Id</th> -->
+                                        <th scope="col">Name</th>
+                                        <th scope="col">hp</th>
+                                        <th scope="col">Option</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                  </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             
+            </div>
+        </div>
+    </div>
+    <% include partials/min-footer %> 
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center" id="exampleModalLabel">Form Add Schedule</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="myForm">
+                <div class="form-group">
+                <label for="exampleInputEmail1">Phone Number</label>
+                    <input type="text" class="form-control" name="hp">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Name</label>
+                  <textarea class="form-control" id="client-description" name="name"></textarea>
+                </div>
+              </form>
+        </div>
+        <div class="modal-footer">
+          <button id="btnSave" class="btn btn-primary add-client-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js" integrity="sha512-orJ/OcUhrhNkg8wgNre5lGcUJyhj1Jsot/QSnRKKiry8ksGvApbHBEbq7AbMsTSv4LnnfR3NSajCQFFsEGe8ig==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#example').DataTable({
+            processing: true,
+            ajax: {
+                'url':'/kontak/listKontak',
+                'type': 'GET'
+            },
+            columns: [
+                // {data: 'id', name: 'id'},
+                {data: 'name', name: 'name'},
+                {data: 'hp', name: 'hp'},
+                {   
+                    data: 'id',
+                    render: function ( data, type, row ) {
+                        return '<div class="btn-group" role="group" aria-label="Basic example">'+
+                        ''+
+                        '<button  onClick="Delete(this)" data-id="'+data+'" id="Edit" class="btn btn-danger btn-sm"><i class="nav-icon fa fa-trash"></i> Delete</button>&nbsp;'+
+                        '</div>';
+                    },
+                    searchable:false,
+                    orderable:false
+                }
+            ]
+        });
+        
+    });
+
+
+    function reloadTable() {
+        $("#example").DataTable().ajax.reload(null,false);
+    }
+    $('#btnAdd').click(function () {
+        $('#myForm')[0].reset();
+        $('#myModal').modal('show');
+        $('#myForm').attr('action','/kontak/create');
+        $('#myModal').find('.modal-title').text('Add Data Schedule');
+        $('#btnSave').html('<i class="fa fa-save"></i>&nbsp;Add');
+    });
+
+    $('#btnSave').click(function () {
+        var url = $('#myForm').attr('action');
+        var data = $("#myForm").serialize();
+        console.log(data);
+        $('#btnSave').html('<i class="fa fa-save"></i>&nbsp; Add <img width="30" heigth="30" src="">').attr('disabled', 'disabled');
+        $.ajax({
+            type: "POST", 
+            url: url,
+            data: data, 
+            dataType: 'json', 
+            async: false,
+            success : function(response){
+                setTimeout(function(){
+                    $('#btnSave').prop('disabled', false);
+                    $('#myModal').modal('hide');
+                    reloadTable();
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Your Contact saved successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                },1000);
+               
+            },
+            error: function(error){
+                alert(error)
+            }
+        });
+    });
+
+    function Edit(id){
+        var id = $(id).data("id");
+        $('#btnSave').html('Update');
+        $('#myModal').modal('show');
+        $('#myForm').attr('action','/update-meeting');
+        $('#myModal').find('.modal-title').text('Update Data');
+        $.ajax({
+            type : 'GET',
+            async: false,
+            url  : '/show-meeting/'+id,
+            dataType :'json',
+            success:function(response){
+            console.log(response);
+                $('input[name=id]').val(response.id);
+                $('input[name=date]').val(response.date);
+                $('input[name=message]').val(response.message);
+            }
+        });
+    }
+
+    function Delete(id) {
+        var id = $(id).data("id");
+        $('.btnDelete').html('&#10095;&#10095; Delete Data <img width="30" heigth="30" src="">').attr('disabled', 'disabled');
+        Swal.fire({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this imaginary file!",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+        })
+        .then((willDelete) => {
+        if (willDelete) {
+            $.ajax({
+                type : 'DELETE',
+                url  :'/kontak/delete/'+id,
+                async: false,
+                dataType :'json',
+                success : function(response){
+                    reloadTable();
+                    Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Your contact has been deleted',
+                    showConfirmButton: false,
+                    timer: 1500
+                    })
+
+                }
+            });
+        } else {
+            Swal.fire("Your contact not deleted!");
+        }
+        });
+    }
+</script>

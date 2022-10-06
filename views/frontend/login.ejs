@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from demo.themekita.com/atlantis/livepreview/examples/demo1/login3.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 02 Jun 2020 06:46:54 GMT -->
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Login</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/598px-WhatsApp.svg.png" type="image/x-icon"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css">
+	<!-- Fonts and icons -->
+	<script src="https://apiwa.uma.ac.id/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['assets/css/fonts.min.css']},
+			active: function() {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+	
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/css/atlantis.css">
+</head>
+<body class="login">
+	<div class="wrapper wrapper-login wrapper-login-full p-0">
+		<div class="login-aside w-50 d-flex flex-column align-items-center justify-content-center text-center bg-secondary-gradient">
+			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/598px-WhatsApp.svg.png" width="200px;" height="200px;">
+			<h1 class="title fw-bold text-white mb-3">Join Our WhatsApp API <br/><a target="_blank" href="https://www.youtube.com/watch?v=0zdl3d0enBM&t=414s">HaivTech</a></h1>
+			<p class="subtitle text-white op-7">Come on, join our community</p>
+		</div>
+		<div class="login-aside w-50 d-flex align-items-center justify-content-center bg-white">
+			<div class="container container-login container-transparent animated fadeIn">
+				<h3 class="text-center">Sign In To Api WhatsApp API</h3>
+				<% if(success !== ""){ %>
+					<% success.forEach((item)=>{ %>
+						<div class="alert alert-success" role="alert">
+							<strong>Well done!</strong> <%- item%>
+						</div>
+					<% })%>
+				<% } %>
+				<% if(errors !== ""){ %>
+					<% errors.forEach((item)=>{ %>
+						<div class="alert alert-danger" role="alert">
+							<strong>Sorry!</strong> <%- item%>
+						</div>
+					<% })%>
+				<% } %>
+				<div class="login-form">
+					<form action="/auth" method="POST">
+						<div class="form-group">
+                            <label for="password" class="placeholder"><b>E-Mail</b></label>
+                            <input type="email" class="form-control" name="email" placeholder="E-Mail" value="admin@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="placeholder"><b>Password</b></label>
+                            <input type="password" class="form-control" name="password" value="123456" placeholder="Password">
+                        </div>
+                        <div class="form-group form-action-d-flex mb-3">
+							<button type="submit" class="btn btn-secondary col-md-5 float-right mt-3 mt-sm-0 fw-bold">Login</button>
+							<a href="/register" class="btn btn-secondary col-md-5 float-right mt-3 mt-sm-0 fw-bold">Register</a>
+                        </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<section class="page-section  about-desc lighBg">
+		<div class="container pb-5 about-data">
+			<div class="row align-items-center pb-5 mt-5">
+				<div class="col-12 col-lg-6">
+					<h1 class="main-title w-100 text-left ">About The Whatsapp API Multi-Device </h1>
+					<p class="">The application provides the ability to host video meetings without downloading any apps into your machine. Enjoy fast, secure, and high-definition video meetings with rich features such as chat, file sharing, screen sharing, and many more.</p>
+					<div class="use-show mt-3">
+						<div class="row text-center align-items-center">
+							<div class="col-12 col-sm-4 ">
+								<i class="fa fa-users fa-3x"></i>
+								<p>Multi-User</p>
+							</div>
+							<div class="col-12 col-sm-4 ">
+								<i class="fa fa-phone-alt fa-3x"></i>
+								<p>Multi-Device</p>
+							</div>
+							<div class="col-12 col-sm-4 ">
+								<i class="fa fa-calendar-alt fa-3x"></i>
+								<p>Scedule</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-lg-6 text-center">
+					<div class="about-icon">
+						<i class="fas fa-chalkboard-teacher fa-10x"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="about-section feature-section page-section" style="background-color: #fff;">
+		<div class="container pt-3">
+			<div class="row w-100">
+				<h1 class="main-title  w-100 text-center">Whatsapp API Multi-Device Features</h1>
+			</div>
+			<div class="row text-center mt-4">
+				<div class="col-12 col-md-3">
+					<div class="icon-box">
+						<i class="fa fa-users fa-2x"></i>
+						<h5 class="box-title">Multi-User</h5>
+						<p>Enjoy browser-based multi-user conferences without downloading any app. </p>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="icon-box ">
+						<i class="fa fa-phone-alt fa-2x"></i>
+						<h5 class="box-title ">Multi-Device</h5>
+						<p>Share links and notes with our real-time chat feature on the go. </p>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="icon-box ">
+						<i class="fa fa-calendar-alt fa-3x"></i>
+						<h5 class="box-title ">Scedule</h5>
+						<p>Need to show something important during the conference? Share your screen instantly. </p>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="icon-box ">
+						<i class="fa fa-envelope-open fa-2x"></i>
+						<h5 class="box-title ">Reply</h5>
+						<p>Now you can share any media file of your choice on the go during video conferences. </p>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="icon-box ">
+						<em class="fa fa-chalkboard fa-2x"></em>
+						<h5 class="box-title ">Docs Api Swagger</h5>
+						<p>Use the collaborative whiteboard to share your ideas. Draw, write &amp; download as an image. </p>
+					</div>
+				</div>
+				<div class="col-12 col-md-3">
+					<div class="icon-box">
+						<em class="fa fa-broadcast-tower fa-2x"></em>
+						<h5 class="box-title">Broadcast</h5>
+						<p>Easily record the meeting along with the screen and whiteboard, directly into your device. </p>
+					</div>
+				</div>
+		
+				<div class="col-12 col-md-3">
+					<div class="icon-box ">
+						<em class="fa fa-file-excel fa-2x"></em>
+						<h5 class="box-title ">Broadcast With Excel</h5>
+						<p>The video meetings are end-to-end encrypted so that you can relax and enjoy the meeting. </p>
+					</div>
+				</div>
+
+				<div class="col-12 col-md-3">
+					<div class="icon-box ">
+						<em class="fa fa-inbox  fa-2x"></em>
+						<h5 class="box-title ">Inbox Message</h5>
+						<p>The video meetings are end-to-end encrypted so that you can relax and enjoy the meeting. </p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<script src="assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="assets/js/core/popper.min.js"></script>
+	<script src="assets/js/core/bootstrap.min.js"></script>
+	<script src="assets/js/atlantis.min.js"></script>
+</body>
+</html>

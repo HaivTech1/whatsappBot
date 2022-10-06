@@ -1,0 +1,248 @@
+<% layout('layout') -%> 
+<div class="main-panel">
+    <div class="container">
+        <div class="panel-header bg-primary-gradient">
+            <div class="page-inner py-5">
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                    <div>
+                        <h2 class="text-white pb-2 fw-bold"></h2>
+                        <h5 class="text-white op-7 mb-2"></h5>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+        <div class="page-inner mt--5">
+            <div class="row mt--2">
+                <div class="col-md-12">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="">
+                                <% if(success !== ""){ %>
+                                    <% success.forEach((item)=>{ %>
+                                        <div class="alert alert-success" role="alert">
+                                            <strong>Well done!</strong> <%- item%>
+                                        </div>
+                                    <% })%>
+                                <% } %>
+                                <% if(errors !== ""){ %>
+                                    <% errors.forEach((item)=>{ %>
+                                        <div class="alert alert-danger" role="alert">
+                                            <strong>Well done!</strong> <%- item%>
+                                        </div>
+                                    <% })%>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="card-title">List Groups</div>
+                            <div class="d-flex flex-wrap justify-content-around pb-2 pt-4">
+                               <div class="table-responsive">
+                                <table class="table" id="example">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">Id Groups</th>
+                                        <th scope="col">Name Groups</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                  </table>
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="card-title">Send Group Text Message Only</div>
+                            <div class="">
+                             
+                                <form method="POST" id="myForm" action="/send-group-text-message">
+                                    <!-- <div class="form-group">
+                                        <label for="exampleInputEmail1">Id</label>
+                                        <select class="form-control" id="id_group" name="id" > 
+                                        </select>
+                                    </div> -->
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Devices</label>
+                                        <select class="form-control" id="sender" name="sender" > 
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="exampleInputEmail1">Group </label>
+                                        <select class="form-control" id="group" name="group" > 
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="exampleInputPassword1">Caption</label>
+                                      <textarea class="form-control" name="caption" id="caption" ></textarea>
+                                    </div>
+                                    <div class="form-check">
+                                        <button id="btnSave" class="btn btn-primary">Send</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card full-height">
+                        <div class="card-body">
+                            <div class="card-title">Send Media to Group</div>
+                            <div class="">
+                             
+                                <form method="POST" id="myForm" action="/send-group-media-message" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Devices</label>
+                                        <select class="form-control" id="sender2" name="sender" > 
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                      <label for="exampleInputEmail1">Group </label>
+                                        <select class="form-control" id="group2" name="group" > 
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Caption</label>
+                                        <textarea class="form-control" name="caption" id="caption" ></textarea>
+                                      </div>
+                                      <div class="form-group">
+                                          <label for="exampleInputEmail1">File</label>
+                                          <input type="file" class="form-control" id="file" name="file" >
+                                      </div>
+                                    <div class="form-check">
+                                        <button id="btnSave" class="btn btn-primary">Send</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% include partials/min-footer %> 
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#example').DataTable({
+            processing: true,
+            ajax: {
+                'url':'/listgroups/listGroups',
+                'type': 'GET'
+            },
+            columns: [
+                {data: 'id', name: 'id'},
+                {data: 'id_group', name: 'id_group'},
+                {data: 'nama_group', name: 'nama_group'}
+            ]
+        });
+
+        $.ajax({
+		type: 'GET',
+		url: '/sendwa/listSender',
+		dataType: 'json',
+            success: function (d) {
+                var newOptions = {};
+                newOptions['-- Select --'] = '';
+                for (var index = 0; index < d.data.length; index++) {
+                    var option = d.data[index].description;
+                    var value = d.data[index].id;
+                    newOptions[option] = value;
+                }
+                var $el = $("#sender");
+                // $el.empty(); // remove old options
+                $.each(newOptions, function(key,value) {
+                $el.append($("<option></option>")
+                    .attr("value", value).text(key));
+                });
+                // console.log(JSON.stringify(newOptions));
+            },error:function(){ 
+                // console.log(d);
+            }
+        });
+
+        $.ajax({
+		type: 'GET',
+		url: '/listgroups/listGroups',
+		dataType: 'json',
+            success: function (d) {
+                var newOptions = {};
+                newOptions['-- Select --'] = '';
+                for (var index = 0; index < d.data.length; index++) {
+                    var option = d.data[index].nama_group + ' - ' + d.data[index].id_group ;
+                    var value = d.data[index].nama_group;
+                    newOptions[option] = value;
+                }
+                var $el = $("#group");
+                // var $al = $("#id_group");
+                // $el.empty(); // remove old options
+                $.each(newOptions, function(key,value) {
+                $el.append($("<option></option>")
+                    .attr("value", value).text(key));
+                });
+                // console.log(JSON.stringify(newOptions));
+            },error:function(){ 
+                // console.log(d);
+            }
+        });
+
+        $.ajax({
+		type: 'GET',
+		url: '/sendwa/listSender',
+		dataType: 'json',
+            success: function (d) {
+                var newOptions = {};
+                newOptions['-- Select --'] = '';
+                for (var index = 0; index < d.data.length; index++) {
+                    var option = d.data[index].description;
+                    var value = d.data[index].id;
+                    newOptions[option] = value;
+                }
+                var $el = $("#sender2");
+                // $el.empty(); // remove old options
+                $.each(newOptions, function(key,value) {
+                $el.append($("<option></option>")
+                    .attr("value", value).text(key));
+                });
+                // console.log(JSON.stringify(newOptions));
+            },error:function(){ 
+                // console.log(d);
+            }
+        });
+
+        $.ajax({
+		type: 'GET',
+		url: '/listgroups/listGroups',
+		dataType: 'json',
+            success: function (d) {
+                var newOptions = {};
+                newOptions['-- Select --'] = '';
+                for (var index = 0; index < d.data.length; index++) {
+                    var option = d.data[index].nama_group + ' - ' + d.data[index].id_group ;
+                    var value = d.data[index].nama_group;
+                    newOptions[option] = value;
+                }
+                var $el = $("#group2");
+                // var $al = $("#id_group");
+                // $el.empty(); // remove old options
+                $.each(newOptions, function(key,value) {
+                $el.append($("<option></option>")
+                    .attr("value", value).text(key));
+                });
+                // console.log(JSON.stringify(newOptions));
+            },error:function(){ 
+                // console.log(d);
+            }
+        });
+        
+	}); 
+</script>

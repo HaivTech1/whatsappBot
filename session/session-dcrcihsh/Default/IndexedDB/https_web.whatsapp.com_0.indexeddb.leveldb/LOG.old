@@ -1,0 +1,20 @@
+2022/10/06-15:47:57.456 33e4 Reusing MANIFEST C:\Users\Brief\Desktop\midBot\session\session-dcrcihsh\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/10/06-15:47:57.456 33e4 Recovering log #148
+2022/10/06-15:47:57.643 33e4 Reusing old log C:\Users\Brief\Desktop\midBot\session\session-dcrcihsh\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000148.log 
+2022/10/06-15:48:53.631 2cc0 Level-0 table #157: started
+2022/10/06-15:48:53.708 2cc0 Level-0 table #157: 1302605 bytes OK
+2022/10/06-15:48:53.714 2cc0 Delete type=0 #148
+2022/10/06-15:49:05.404 2cc0 Compacting 1@1 + 5@2 files
+2022/10/06-15:49:05.738 2cc0 Generated table #158@1: 29263 keys, 2255206 bytes
+2022/10/06-15:49:05.912 2cc0 Generated table #159@1: 48481 keys, 2290384 bytes
+2022/10/06-15:49:06.047 2cc0 Generated table #160@1: 30440 keys, 2246695 bytes
+2022/10/06-15:49:06.153 2cc0 Generated table #161@1: 21659 keys, 2193830 bytes
+2022/10/06-15:49:06.230 2cc0 Generated table #162@1: 44985 keys, 956180 bytes
+2022/10/06-15:49:06.231 2cc0 Compacted 1@1 + 5@2 files => 9942295 bytes
+2022/10/06-15:49:06.234 2cc0 compacted to: files[ 0 0 5 0 0 0 0 ]
+2022/10/06-15:49:06.235 2cc0 Delete type=2 #150
+2022/10/06-15:49:06.235 2cc0 Delete type=2 #151
+2022/10/06-15:49:06.235 2cc0 Delete type=2 #152
+2022/10/06-15:49:06.235 2cc0 Delete type=2 #153
+2022/10/06-15:49:06.235 2cc0 Delete type=2 #154
+2022/10/06-15:49:06.235 2cc0 Delete type=2 #157

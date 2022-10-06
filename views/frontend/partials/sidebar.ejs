@@ -1,0 +1,68 @@
+<div class="sidebar sidebar-style-2">			
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <div class="user" id="list-profile">
+          
+            </div>
+            <ul class="nav nav-primary" id="list-menu"></ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+    listMenu();
+    function listMenu(){
+        $.ajax({
+            type: 'GET',
+            url: '/home/list-menu',
+            dataType: 'json',
+            success : function(data){
+                var {data} = data;
+                var result = data
+                var html = '';
+                var i;
+                for(i=0; i<result.length; i++){
+                    html += '<li class="nav-item">'+
+                                '<a href="http://localhost:3000/'+result[i].link+'">'+
+                                    '<i class="'+result[i].icons+'"></i>'+
+                                    '<p>'+result[i].name+'</p>'+
+                                    '<span class="badge badge-count">&nbsp;</span>'+
+                                '</a>'+
+                            '</li>';
+                }
+                $('#list-menu').html(html);
+            }
+        });
+    }
+
+    listProfile();
+    function listProfile(){
+        $.ajax({
+            type: 'GET',
+            url: '/users/profile',
+            dataType: 'json',
+            success : function(response){
+                // console.log(data);
+                const { data } = response
+                var html = '';
+                var i;
+                for(i=0; i<data.length; i++){
+                    html += 
+                    '<div class="avatar-sm float-left mr-2">'+
+                        '<img src="assets/img/'+data[i].image+'" alt="..." class="avatar-img rounded-circle">'+
+                    '</div>'+
+                    '<div class="info">'+
+                        '<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">'+
+                            '<span>'+data[i].username+''+
+                                '<span class="user-level">'+data[i].role+'</span>'+
+                                '<span class="caret"></span>'+
+                            '</span>'+
+                        '</a>'+
+                    '</div>';
+                }
+                $('#list-profile').html(html);
+            }
+        });
+    }
+})
+</script>
